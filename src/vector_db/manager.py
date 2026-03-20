@@ -11,14 +11,14 @@ class VectorManager:
     """
     def __init__(self, collection_name: str = "copassist_protocols"):
         self.collection_name = collection_name
+        # Note: Switched to text-embedding-004 as it is more robust! - Neel
         self.embeddings = GoogleGenerativeAIEmbeddings(
-            model="models/embedding-001",
+            model="models/text-embedding-004", # Updated from embedding-001
             google_api_key=settings.GEMINI_API_KEY
         )
-        # Using in-memory Qdrant for the assessment demo
         self.client = QdrantClient(location=":memory:") 
         
-        # Ensure collection exists before initializing the store
+        # Ensure collection exists
         self._ensure_collection()
         
         self.vector_store = QdrantVectorStore(
@@ -28,13 +28,12 @@ class VectorManager:
         )
 
     def _ensure_collection(self):
-        """ Creates the collection if it doesn't exist in memory. """
+        """ Creates the collection if it doesn't exist. """
         collections = self.client.get_collections().collections
         exists = any(c.name == self.collection_name for c in collections)
         
         if not exists:
-            # We need to specify the vector size for the embedding model
-            # Google's models/embedding-001 usually outputs 768 dimensions
+            # text-embedding-004 has 768 dimensions by default.
             self.client.create_collection(
                 collection_name=self.collection_name,
                 vectors_config=VectorParams(size=768, distance=Distance.COSINE),
