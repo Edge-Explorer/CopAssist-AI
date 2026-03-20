@@ -1,0 +1,51 @@
+# IDEs and Editors
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*.swo
+*.DS_Store
+._*
+ehthumbs.db
+Thumbs.db
+*.orig
+
+# Environment
+.env
+.venv
+env/
+venv/
+secrets.ini
+credentials.ini
+*.log
+local_settings.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.egg-info
+dist/
+build/
+sdist/
+*.whl
+*.egg
+/.mypy_cache/
+/.ruff_cache/
+.pytest_cache/
+*.coverage
+.coverage*
+*.log
+
+# Dependency files (uv)
+uv.lock
+
+# Data directories (potentially large)
+/data/
+!data/.gitkeep
+
+# Ignore SQLite database (if used)
+*.sqlite
+*.db
