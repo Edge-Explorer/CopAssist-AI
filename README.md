@@ -1,82 +1,86 @@
 # CopAssist AI – Intelligent Patrol & Surveillance System
 
-CopAssist AI is an automated surveillance analysis platform designed to assist law enforcement. It combines real-time Computer Vision telemetry with a Multi-Agent LLM reasoning system (RAG) to provide contextual, protocol-based alerts.
+### Final Submission for AI/ML Engineer Screening Task (CopMap)
 
-## 🚀 Key Features
+CopAssist AI is a modular surveillance analysis system designed to assist law enforcement during **Bandobast** (security arrangements), **Patrolling**, and **Nakabandi** (checkpoints). 
 
-- **Computer Vision Telemetry**: Real-time monitoring of crowd density, person count, and unusual movements.
-- **Multi-Agent Brain**: Decoupled agents for Vision, Analysis, and Decision-making.
-- **RAG-Powered Alerts**: Alerts are grounded in official police protocols and safety manuals.
-- **Smart Summarization**: Situational reports generated hourly or daily to reduce "alert fatigue."
-- **Cost-Aware Prompting**: Optimized LLM interaction for lower latency and token usage.
+---
 
-## 🏗️ Architecture
+## 1. Problem Understanding: AI in Police Operations
+
+### Where AI fits realistically
+- **Continuous Monitoring**: AI doesn't get tired; it can monitor hundreds of CCTV feeds for density spikes.
+- **Protocol Grounding**: Providing real-time SOPs to officers via RAG avoids human memory errors under pressure.
+- **Pattern Detection**: Spotting suspicious gatherings at unusual hours (e.g., 3 AM).
+
+### Automated vs. Assisted
+- **Automated**: Data extraction (counting people, detecting objects, logging events).
+- **Assisted**: Decision making. AI *suggests* actions based on SOPs, but the human officer makes the final call.
+
+### Risks of False Positives
+- **Scenario**: A midnight religious festival could be flagged as an "Unauthorized Gathering."
+- **Mitigation**: Our **Analysis Agent** considers the calendar/local events before escalating to **Critical**.
+
+---
+
+## 2. System Architecture
 
 ```mermaid
 graph TD
-    A[Camera Feed] --> B[CV Model / Simulator]
-    B --> C[Crowd Data & Telemetry]
-    C --> D[Vision Agent]
-    D --> E[Analysis Agent]
-    E --> F[LLM Agent + RAG]
-    G[Vector DB / Protocols] --> F
-    F --> H[PostgreSQL Alerts]
-    H --> I[FastAPI Dashboard / Alerts]
+    A[Camera Feed / Webcam] --> B[OpenCV HOG Detector]
+    B --> C[Crowd Data & Stats]
+    C --> D[Multi-Agent Brain - Gemini 2.0 Flash]
+    D --> E[Vision Agent: Filters Noise]
+    E --> F[Analysis Agent: Adds Context]
+    F --> G[LLM Agent + RAG: Protocol Grounding]
+    H[SOP Knowledge Base] --> G
+    G --> I[PostgreSQL Database]
+    I --> J[FastAPI Admin Dashboard]
 ```
 
-## 💰 Cost-Aware Prompting (Production Ready)
+---
 
-To maintain low latency and token costs, CopAssist uses a **Layered Intelligence** approach:
-1.  **Vision Agent (Filter)**: Summarizes raw CV telemetry into human-readable snippets. This prevents second-stage agents from processing lengthy raw JSON.
-2.  **Short-Session Context**: Agents use precise `ChatPromptTemplates` with instruction-only contexts.
-3.  **Smart Escalation**: The decision agent only triggers RAG lookups if specific thresholds (e.g., population count or density anomalies) are breached.
+## 3. Implementation Details
 
-## 🛠️ Tech Stack
+- **CV Model**: Using OpenCV's **HOG (Histogram of Oriented Gradients)** + SVM for lightweight, out-of-the-box person detection.
+- **Multi-Agent Brain**: Decoupled agents for **Vision**, **Contextual Analysis**, and **Decision Making**.
+- **LLM**: **Gemini 2.0 Flash** for low-latency reasoning.
+- **RAG Layer**: Indexed police protocols using **Qdrant** (in-memory) for grounded alerting.
+- **Database**: **PostgreSQL** (SQLAlchemy) for persistence of all telemetry and alerts.
 
-- **Backend**: FastAPI
-- **Database**: PostgreSQL (SQLAlchemy)
-- **Vector DB**: Qdrant / ChromaDB
-- **LLM**: OpenAI (GPT-4o) / LangChain
-- **CV**: OpenCV + YOLO (or Mock/HOG)
-- **Package Manager**: UV
+---
 
-## ⚙️ Setup & Installation
+## 💰 Cost-Aware Prompt Strategies
+1.  **Summarization Tunnels**: Raw JSON is summarized by the Vision Agent to save tokens in downstream reasoning.
+2.  **Instruction-Only Prompts**: Zero-shot prompting with clear schemas to minimize input length.
+3.  **Smart Escalation**: Vector DB lookups are only triggered if a threshold breach (e.g., > 20 people) is detected.
 
-1.  **Clone the Repository**:
+---
+
+## 🛠️ How to Run
+
+1.  **Clone & Install**:
     ```bash
-    git clone https://github.com/yourusername/CopAssist-AI.git
-    cd CopAssist-AI
-    ```
-
-2.  **Initialize Environment**:
-    ```bash
-    uv venv
     uv sync
     ```
-
-3.  **Environment Variables**:
-    Create a `.env` file:
-    ```env
-    OPENAI_API_KEY=your_key
-    DATABASE_URL=postgresql://user:pass@localhost:5432/copassist
-    QDRANT_HOST=localhost
-    QDRANT_PORT=6333
+2.  **Initialize DB**:
+    ```bash
+    uv run alembic upgrade head
     ```
-
-4.  **Run the Server**:
+3.  **Start API**:
     ```bash
     uv run uvicorn src.main:app --reload
     ```
+4.  **Start CV Detector (Webcam)**:
+    ```bash
+    uv run python src/cv/detector.py
+    ```
 
-## 🧠 Real-World Thinking: Case Study
+---
 
-**Scenario**: Unauthorized gathering at City Park at 2 AM.
-- **Vision Agent**: Reports increase from 2 to 50 people within 10 minutes.
-- **Analysis Agent**: Correlates with local ordinance (Park closes at 11 PM).
-- **LLM Agent**: Consults RAG (Standard Operating Procedures) and generates a "Priority 1" alert recommending immediate patrol.
+## 💥 Trade-offs & Decisions
+- **Chosen OpenCV over YOLO**: To ensure the submission is portable and runs on regular PCs without GPU bottlenecks during a live screening.
+- **Gemini Over OpenAI**: Better tokens-per-dollar and faster response times for real-time telemetry.
 
-## 💥 Multi-Agent Collaboration
-
-- **Vision Agent**: Filters noise and aggregates telemetry.
-- **Analysis Agent**: Detects patterns and detects anomalies.
-- **Decision Agent**: Maps patterns to protocols and communicates with humans.
+**Author**: Neel (Screening Candidate)
+**Project**: CopAssist AI
