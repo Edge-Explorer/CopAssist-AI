@@ -1,24 +1,26 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
+# Configuration for the CopAssist AI system
+# Note: I used pydantic-settings because it's way easier to handle .env files this way! - Neel
 class Settings(BaseSettings):
-    # LLM Configuration
-    OPENAI_API_KEY: Optional[str] = None
-    GEMINI_API_KEY: Optional[str] = None
-    MODEL_NAME: str = "gpt-4o"
+    # LLM Settings (Using Gemini as requested)
+    GEMINI_API_KEY: str = "AIzaSyAMRaSkgOR30f-Q2wJcMSLF8yXX7y_FNhk"
+    MODEL_NAME: str = "gemini-1.5-flash" # Flash is faster for real-time telemetry
     
-    # DB Configuration
-    DATABASE_URL: str = "postgresql://user:password@localhost:5432/copassist"
+    # DB Setup for pgAdmin
+    # Format: postgresql://postgres:Neel%401234@localhost:5432/CopAssistAI
+    DATABASE_URL: str = "postgresql://postgres:Neel%401234@localhost:5432/CopAssistAI"
     
-    # Vector DB Configuration
+    # Vector DB settings for our RAG system
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     VECTOR_DB_PATH: Optional[str] = "./data/chroma_db"
     
-    # CCTV Simulation
-    MOCK_TELEMETRY_INTERVAL: int = 5 # seconds
+    # CCTV Simulator settings
+    MOCK_TELEMETRY_INTERVAL: int = 5 
     
-    # Multi-Agent logic thresholds
+    # Basic Thresholds for alerts
     CRITICAL_CROWD_DENSITY: float = 0.8
     PERSON_THRESHOLD_NORMAL: int = 20
     

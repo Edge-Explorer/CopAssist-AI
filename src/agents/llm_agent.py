@@ -1,39 +1,36 @@
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from src.core.config import settings
 from src.vector_db.manager import vector_manager
 
 class LLMAgent:
     """
-    The LLM Agent performs RAG-based decision making.
-    It takes the Analysis summary, searches for relevant Police Protocols,
-    and produces a final Alert recommendation (severity and action).
+    RAG-driven final decision. Looks at official Protocols to give a professional recommendation.
+    I hooked this up to the vector store we indexed earlier!
     """
     def __init__(self):
-        self.llm = ChatOpenAI(
+        self.llm = ChatGoogleGenerativeAI(
             model=settings.MODEL_NAME,
             temperature=0,
-            api_key=settings.OPENAI_API_KEY
+            google_api_key=settings.GEMINI_API_KEY
         )
         self.prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are the Decision Agent for CopAssist AI. Using the Analysis summary and retrieved Protocols, generate a final recommendation. Categorize severity as CRITICAL, WARNING, or INFO. Provide a specific 'recommended action' grounded in SOPs."),
-            ("user", "Retrieved Protocols: {protocols}\nAnalysis Report: {analysis_summary}")
+            ("system", "You are the Decision Agent. Using the protocols and analysis, recommend an action. Be specific: e.g. 'Dispatch patrol now' or 'Monitoring only'."),
+            ("user", "Relevant Police Protocols: {protocols}\nAnalysis Result: {analysis_summary}")
         ])
 
     async def generate_alert(self, analysis_summary: str) -> dict:
-        # 1. Retrieve RAG context
+        # 1. Search for SOPs in the vector store
         protocols = await vector_manager.search_protocols(analysis_summary)
         protocol_text = "\n".join([doc.page_content for doc in protocols])
         
-        # 2. Invoke LLM
+        # 2. Final Decision
         chain = self.prompt | self.llm
         response = await chain.ainvoke({
             "protocols": protocol_text,
             "analysis_summary": analysis_summary
         })
         
-        # In a real app, use structured output or PydanticOutputParser
-        # Simple string-for-now or JSON if requested
         return {
             "analysis": analysis_summary,
             "decision": response.content,
