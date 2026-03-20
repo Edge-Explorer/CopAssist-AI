@@ -45,8 +45,9 @@ async def get_alert_summary():
 async def submit_telemetry(data: TelemetryData):
     """
     Submits telemetry from a CV sensor and triggers the Multi-Agent Brain.
-    Also saves to PostgreSQL for our persistent logs and pgAdmin view!
+    Also saves to PostgreSQL for our persistent logs!
     """
+    print(f"📡 Telemetry received from {data.sensor_id} - People: {data.person_count}")
     from src.agents.vision_agent import vision_agent
     from src.agents.analysis_agent import analysis_agent
     from src.agents.llm_agent import llm_agent

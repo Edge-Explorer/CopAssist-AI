@@ -28,12 +28,19 @@ class CrowdDetector:
         self.telemetry_thread.start()
 
     def _sender_loop(self):
+        """ Runs in the background and sends data to the API. """
         while True:
             try:
                 payload = self.telemetry_queue.get()
-                requests.post(self.api_url, json=payload, timeout=2)
+                # Increased timeout to 8s - Gemini 2.0 has 3 agents to run! - Neel
+                response = requests.post(self.api_url, json=payload, timeout=8)
+                if response.status_code == 200:
+                    print(f"✅ Brain processed data for {payload['person_count']} people.")
+                else:
+                    print(f"⚠️ API responded with {response.status_code} error.")
                 self.telemetry_queue.task_done()
-            except Exception: pass
+            except Exception as e:
+                print(f"❌ Telemetry connection error: {e}")
 
     def detect_and_report(self, source=0):
         cap = cv2.VideoCapture(source)
