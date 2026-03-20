@@ -52,30 +52,30 @@ async def submit_telemetry(data: TelemetryData):
     from src.agents.llm_agent import llm_agent
     from src.db.models import SessionLocal, DBTelemetry, DBAlert
     
-    # 1. Save Raw Telemetry to PostgreSQL
+    # 1. Trigger Multi-Agent Flow FIRST to get the analysis!
+    vision_summary = await vision_agent.process_telemetry(data)
+    analysis_report = await analysis_agent.analyze(vision_summary)
+    decision = await llm_agent.generate_alert(analysis_report)
+    
+    # 2. Save Telemetry + Analysis to PostgreSQL 
     db = SessionLocal()
     try:
         new_telemetry = DBTelemetry(
             sensor_id=data.sensor_id,
             person_count=data.person_count,
             crowd_density=data.crowd_density,
-            timestamp=data.timestamp
+            timestamp=data.timestamp,
+            analysis_summary=analysis_report # Now saving the brain's output! - Neel
         )
         db.add(new_telemetry)
         db.commit()
     except Exception as e:
-        print(f"DB Error: {e} - (Make sure your PostgreSQL is running at Neel@1234!)")
+        print(f"DB Error: {e}")
     finally:
         db.close()
-
-    # Trigger Multi-Agent Flow
-    # ... (rest of the flow)
-    vision_summary = await vision_agent.process_telemetry(data)
-    analysis_report = await analysis_agent.analyze(vision_summary)
-    decision = await llm_agent.generate_alert(analysis_report)
     
-    # Store alert if severity is WARNING or CRITICAL
-    if any(keyword in decision["decision"].upper() for keyword in ["CRITICAL", "WARNING"]):
+    # 3. Store alert if severity is WARNING or CRITICAL
+    if any(keyword in str(decision["decision"]).upper() for keyword in ["CRITICAL", "WARNING"]):
         alert_id = f"ALT_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         
         # Save Alert to PostgreSQL
