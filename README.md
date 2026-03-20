@@ -24,6 +24,13 @@ graph TD
     H --> I[FastAPI Dashboard / Alerts]
 ```
 
+## 💰 Cost-Aware Prompting (Production Ready)
+
+To maintain low latency and token costs, CopAssist uses a **Layered Intelligence** approach:
+1.  **Vision Agent (Filter)**: Summarizes raw CV telemetry into human-readable snippets. This prevents second-stage agents from processing lengthy raw JSON.
+2.  **Short-Session Context**: Agents use precise `ChatPromptTemplates` with instruction-only contexts.
+3.  **Smart Escalation**: The decision agent only triggers RAG lookups if specific thresholds (e.g., population count or density anomalies) are breached.
+
 ## 🛠️ Tech Stack
 
 - **Backend**: FastAPI
