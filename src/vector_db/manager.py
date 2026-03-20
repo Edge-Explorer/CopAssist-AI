@@ -8,17 +8,17 @@ from src.core.config import settings
 class VectorManager:
     """
     RAG system: This indexes our SOPs into a vector store.
+    Note: gemini-embedding-2 is 3072-dimensional! - Neel
     """
     def __init__(self, collection_name: str = "copassist_protocols"):
         self.collection_name = collection_name
-        # Using the absolute latest preview embedding model! - Neel
         self.embeddings = GoogleGenerativeAIEmbeddings(
             model="models/gemini-embedding-2-preview", 
             google_api_key=settings.GEMINI_API_KEY
         )
         self.client = QdrantClient(location=":memory:") 
         
-        # Ensure collection exists before store init
+        # Ensure collection exists with correct 3072 dimension
         self._ensure_collection()
         
         self.vector_store = QdrantVectorStore(
@@ -33,12 +33,12 @@ class VectorManager:
         exists = any(c.name == self.collection_name for c in collections)
         
         if not exists:
-            # gemini-embedding-2-preview uses 768 dimensions by default.
+            # gemini-embedding-2-preview actually uses 3072 dimensions! - Neel
             self.client.create_collection(
                 collection_name=self.collection_name,
-                vectors_config=VectorParams(size=768, distance=Distance.COSINE),
+                vectors_config=VectorParams(size=3072, distance=Distance.COSINE),
             )
-            print(f"Collection {self.collection_name} created with gemini-embedding-2.")
+            print(f"Collection {self.collection_name} created with 3072 dimensions.")
 
     async def index_protocols(self, protocol_file_path: str):
         """ Putting SOPs into the vector store. """
