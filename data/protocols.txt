@@ -1,0 +1,28 @@
+# CopAssist AI Standard Operating Procedures (SOPs)
+
+[SOP-101: Unauthorized Gathering]
+Definition: A group of >10 people in a public park after 11 PM or in a restricted zone.
+Action: 
+1. Issue a warning via automated speakers.
+2. Alert nearest patrol car.
+
+[SOP-102: Extreme Crowd Density]
+Definition: Crowd density exceeding 0.8 people per square meter.
+Risk: Stampede or crushing.
+Action: Alert dispatch and recommend crowd dispersal measures.
+
+[SOP-103: Behavior-Based Threat Detection]
+Definition: Detection of "AGGRESSIVE_STANCE" or "HANDS_RAISED" suspicious behavior in a public zone.
+Threat Profile: High risk of assault, protest, or unauthorized conflict.
+Action:
+1. Trigger IMMEDIATE RED ALERT.
+2. Deploy primary response unit.
+3. Lock local perimeter.
+
+[SOP-104: Routine Patrol Enhancement]
+Definition: Small gatherings <5 people in residential areas at night.
+Action: Log event for daily summary. No immediate dispatch.
+
+[SOP-105: Emergency Response Protocols]
+Definition: Sudden influx of >20 people in 5 minutes.
+Action: Immediate high-priority dispatch. Monitor all adjacent cameras.
