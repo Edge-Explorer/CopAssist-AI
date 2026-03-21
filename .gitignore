@@ -42,7 +42,7 @@ sdist/
 # Dependency files (uv)
 uv.lock
 
-# Data (Included for RAG Protocols) 
+# Data (Included for RAG Protocols)
 # Previously ignored, now correctly included!
 
 # Ignore SQLite database (if used)
