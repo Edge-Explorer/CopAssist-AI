@@ -22,6 +22,9 @@ class TelemetryData(BaseModel):
     crowd_density: float # 0.0 to 1.0
     anomalies_detected: List[str]
     timestamp: datetime
+    # New GPS fields for CopMap integration - Neel
+    latitude: Optional[float] = 19.0760 # Default Mumbai coordinates
+    longitude: Optional[float] = 72.8777
 
 # In-memory mock storage for initial development
 mock_alerts = []
@@ -58,7 +61,7 @@ async def submit_telemetry(data: TelemetryData):
     analysis_report = await analysis_agent.analyze(vision_summary)
     decision = await llm_agent.generate_alert(analysis_report)
     
-    # 2. Save Telemetry + Analysis to PostgreSQL 
+    # 2. Save Telemetry + Analysis + Location!
     db = SessionLocal()
     try:
         new_telemetry = DBTelemetry(
@@ -66,7 +69,9 @@ async def submit_telemetry(data: TelemetryData):
             person_count=data.person_count,
             crowd_density=data.crowd_density,
             timestamp=data.timestamp,
-            analysis_summary=analysis_report # Now saving the brain's output! - Neel
+            analysis_summary=analysis_report,
+            latitude=data.latitude,
+            longitude=data.longitude
         )
         db.add(new_telemetry)
         db.commit()
@@ -88,7 +93,9 @@ async def submit_telemetry(data: TelemetryData):
                 location=f"Sensor_{data.sensor_id}",
                 timestamp=datetime.now(),
                 description=decision["decision"],
-                recommended_action="Dispatching Patrol - SOP Followed"
+                recommended_action="Dispatching Patrol - SOP Followed",
+                latitude=data.latitude,
+                longitude=data.longitude
             )
             db.add(new_alert)
             db.commit()

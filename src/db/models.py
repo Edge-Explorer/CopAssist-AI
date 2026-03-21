@@ -13,6 +13,9 @@ class DBTelemetry(Base):
     crowd_density = Column(Float)
     timestamp = Column(DateTime)
     analysis_summary = Column(TEXT, nullable=True)
+    # Location Intelligence - Neel
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
 
 class DBAlert(Base):
     __tablename__ = "alerts"
@@ -22,6 +25,9 @@ class DBAlert(Base):
     timestamp = Column(DateTime)
     description = Column(TEXT)
     recommended_action = Column(TEXT)
+    # Location Intelligence - Neel
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
 
 # Set up the engine and session
 # Using PostgreSQL if configured, otherwise falls back to a dummy or fails early

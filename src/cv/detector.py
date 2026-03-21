@@ -86,7 +86,10 @@ class CrowdDetector:
                     "person_count": smoothed_count,
                     "crowd_density": round(density, 2),
                     "anomalies_detected": anomalies or (["CROWD_CONGESTION"] if density > 0.7 else []),
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
+                    # Simulated Location: Gateway of India, Mumbai - Neel
+                    "latitude": 18.9220,
+                    "longitude": 72.8347
                 }
                 self.telemetry_queue.put(payload)
 
